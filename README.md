@@ -3,7 +3,7 @@
 [![Shell](https://img.shields.io/badge/language-Bash-blue)](https://www.gnu.org/software/bash/)
 [![Version](https://img.shields.io/badge/version-3.0--Orion-critical)](#)
 [![Built By](https://img.shields.io/badge/built--by-CybernetiX--S3C-purple)](https://github.com/CybernetiX-S3C)
-
+```
 ╔═════════════════════════════════════════╗
 ║         S3C TACTICAL PANEL v3.0         ║
 ╚═════════════════════════════════════════╝
@@ -12,6 +12,7 @@
 **GitHub:** [CybernetiX-S3C](https://github.com/CybernetiX-S3C)  
 **Version:** 3.0 (Codename: Orion)  
 **License:** MIT
+```
 
 ---
 
