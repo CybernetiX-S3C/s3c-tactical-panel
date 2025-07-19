@@ -1,4 +1,7 @@
 # S3C Tactical Panel
+<p align="center">
+  <img src="logo.png" width="400" alt="CybernetiX S3C Tactical Logo">
+</p>
 [![Release: v3.0-Orion](https://img.shields.io/badge/release-v3.0--Orion-brightgreen?style=flat-square)](https://github.com/CybernetiX-S3C/s3c-tactical-panel/releases/tag/v3.0-Orion)
 [![License: MIT](https://img.shields.io/badge/license-MIT-brightgreen)](LICENSE)
 [![Shell](https://img.shields.io/badge/language-Bash-blue)](https://www.gnu.org/software/bash/)
