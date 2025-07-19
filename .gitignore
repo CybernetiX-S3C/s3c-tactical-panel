@@ -1,0 +1,8 @@
+# system files
+*.swp
+.DS_Store
+# logs and state
+/var/log/
+/tmp/*.conf
+# user sessions
+~/.s3c/sessions/

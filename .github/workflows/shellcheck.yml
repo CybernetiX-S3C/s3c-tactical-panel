@@ -1,0 +1,13 @@
+name: Shellcheck
+
+on: [push, pull_request]
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: ShellCheck
+        uses: ludeeus/action-shellcheck@v1
+        with:
+          options: "-e SC1090"   # allow dynamic sourcing
