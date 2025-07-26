@@ -3,22 +3,24 @@
   <img src="logo.png" width="400" alt="CybernetiX S3C Tactical Logo">
 </p>
 
-[![Release: v3.0-Orion](https://img.shields.io/badge/release-v3.0--Orion-brightgreen?style=flat-square)](https://github.com/CybernetiX-S3C/s3c-tactical-panel/releases/tag/v3.0-Orion)
+[![Release: v4.0-Aether](https://img.shields.io/badge/release-v4.0--Aether-brightgreen?style=flat-square)](https://github.com/CybernetiX-S3C/s3c-tactical-panel/releases/tag/v4.0-Aether)
 [![License: MIT](https://img.shields.io/badge/license-MIT-brightgreen)](LICENSE)
 [![Shell](https://img.shields.io/badge/language-Bash-blue)](https://www.gnu.org/software/bash/)
-[![Version](https://img.shields.io/badge/version-3.0--Orion-critical)](#)
+[![Version](https://img.shields.io/badge/version-4.0--Aether-critical)](#)
 [![Built By](https://img.shields.io/badge/built--by-CybernetiX--S3C-purple)](https://github.com/CybernetiX-S3C)
 
 ```
+
 ╔═════════════════════════════════════════╗
-║         S3C TACTICAL PANEL v3.0         ║
+║         S3C TACTICAL PANEL v4.0         ║
 ╚═════════════════════════════════════════╝
 
 **Author:** John Poli Modica (CybernetiX S3C)  
-**GitHub:** [CybernetiX-S3C](https://github.com/CybernetiX-S3C)  
-**Version:** 3.0 (Codename: Orion)  
+**GitHub:** [CybernetiX-S3C](https://github.com)  
+**Version:** 4.0 (Codename: Aether)  
 **License:** MIT
-```
+
+````
 
 ---
 
@@ -34,34 +36,37 @@ Built natively in Bash, and leveraging common system tools like `dnsmasq`, `host
 
 ## 🧠 Features
 
-- 🎙 **Voice-Guided Interaction**  
+- 🎙 **Voice-Guided Interaction**
   Use of `flite` delivers real-time verbal feedback for operational clarity.
 
-- 🧬 **Modular Hotspot Configuration**  
+- 🧬 **Modular Hotspot Configuration**
   Save, load, and restore repeater session profiles with `.conf` files stored in a persistent directory.
 
-- 🚨 **Instant Repeater Reset**  
-  Execute full environment resets via `s3c-repeater-init.sh`, complete with NAT, DHCP, WPA2 provisioning, and interface setup.
+- 🚨 **Instant Repeater Reset with Comprehensive Pre-Flight Network Purge**
+  Execute full environment resets via `s3c-repeater-init.sh`, now including a complete NetworkManager restart and a comprehensive `iptables` and `ip6tables` flush (clearing all rules, chains, and tables including NAT, RAW, and MANGLE) *before* applying new configurations. This ensures a clean slate for NAT, DHCP, WPA2 provisioning, and interface setup, preventing lingering conflicts and guaranteeing optimal repeater functionality.
 
-- 🔬 **Network Diagnostics**  
-  Built-in pings, service status checks, and IP address verification provide quick health assessments.
+- 🔬 **Enhanced Network Diagnostics**
+  Built-in pings, service status checks, and comprehensive IP address verification provide swift health assessments and service activation validation.
 
-- 🧠 **Connected Client Monitoring**  
-  Displays ARP cache and active clients for realtime network visibility.
+- 🧠 **Connected Client Monitoring**
+  Displays ARP cache and active clients for real-time network visibility.
 
-- 📜 **Log Viewing and Capture**  
-  Pull logs directly from `/var/log/s3c-repeater.log` for troubleshooting or auditing.
+- 📜 **Log Viewing and Capture with Focused Auto-Cleanup**
+  Pull logs directly from `/var/log/s3c-repeater.log` for troubleshooting or auditing. Features enhanced log truncation and journal vacuuming for system hygiene. The background auto-cleanup daemon now specifically focuses on aggressive log purification (truncating common active logs and vacuuming systemd journal) every 4 hours.
 
-- 🔄 **Default Network Restoration**  
-  Returns wireless interfaces to managed mode using `nmcli`, restoring factory-like behavior.
+- 🔄 **Default Network Restoration**
+  Returns wireless interfaces to `managed` mode using `nmcli` and cleans associated configurations, restoring factory-like behavior.
 
-- 🧹 **Graceful Shutdown Tools**  
-  Terminates repeater services and flushes configurations with voice confirmation.
+- 🧹 **Graceful Shutdown & Advanced System Purge**
+  Terminates repeater services, flushes configurations, and performs aggressive log purification (truncating logs, vacuuming journal) with voice confirmation. Also stops the auto-cleanup daemon.
 
-- 🛡️ **Systemd & IPTables Native**  
-  Handles service restarts and firewall rules without external libraries.
+- 🛡️ **Systemd & IPTables Native**
+  Handles service restarts and robust firewall rules without external libraries, including comprehensive flushing and default policy resets.
 
-- ⚙️ **MIT Licensed & Expandable**  
+- 🛰 **CyberX ReconX Integration**
+  Launch wireless diagnostics and Realtek recovery suite directly from the control panel. Includes interface spoofing, MAC cloning, recon sweeps, and driver rebuild functionality via CyberX ReconX.
+
+- ⚙️ **MIT Licensed & Expandable**
   Open-source, extensible, and designed to be forked, embedded, or integrated.
 
 ---
@@ -71,19 +76,25 @@ Built natively in Bash, and leveraging common system tools like `dnsmasq`, `host
 Clone the repository and run the deploy script to install modules and register the command alias:
 
 ```bash
-git clone https://github.com/CybernetiX-S3C/s3c-tactical-panel.git
+git clone [https://github.com/CybernetiX-S3C/s3c-tactical-panel.git](https://github.com/CybernetiX-S3C/s3c-tactical-panel.git)
 cd s3c-tactical-panel
 chmod +x s3c-repeater-*.sh
 sudo ./s3c-repeater-deploy.sh
-```
+````
 
 Once deployed, use:
-```
+
+```bash
 s3cctl
 ```
+
 You will be greeted with a voice prompt and the full ASCII-art tactical interface.
 
+Optionally install CyberX ReconX automatically from within the control panel if not already present.
+It will be cloned to `/opt/CyberReconX` and globally registered as `cyberx`.
+
 📁 Directory Structure
+
 ```
 s3c-tactical-panel/
 ├── s3c-repeater-control.sh     # Interactive panel interface
@@ -97,32 +108,24 @@ s3c-tactical-panel/
 🛠 Dependencies
 Ensure these system packages are installed before deploying:
 
-flite — voice engine
-
-dnsmasq — DHCP and DNS handler
-
-hostapd — wireless access point daemon
-
-iptables — firewall and NAT routing
-
-net-tools — legacy tools for interface status
-
-nmcli — (optional) NetworkManager CLI for restoration
+  - `flite` — voice engine
+  - `dnsmasq` — DHCP and DNS handler
+  - `hostapd` — wireless access point daemon
+  - `iptables` — firewall and NAT routing
+  - `net-tools` — legacy tools for interface status
+  - `git` — (for CyberX integration) version control system
+  - `network-manager` — CLI tool for network interface management (`nmcli`)
 
 All dependencies are checked and optionally installed by the deployer script if missing.
 
 ✨ Example Workflow
-Run s3cctl
 
-Configure a session or restore a previous one
-
-Reset repeater to apply settings
-
-Run diagnostics and monitor clients
-
-View logs as needed
-
-Shutdown or restore interfaces with voice confirmation
+1.  Run `s3cctl`
+2.  Configure a session or restore a previous one
+3.  Reset repeater to apply settings
+4.  Run diagnostics and monitor clients
+5.  View logs as needed
+6.  Shutdown or restore interfaces with voice confirmation
 
 ⚠️ Disclaimer
 S3C Tactical Panel manipulates network interfaces and system services. Use in live environments with caution. Administrator privileges are required for most operations. Always test in isolated or virtualized conditions before rolling out to production networks.
@@ -132,6 +135,5 @@ Licensed under the MIT License. Open to modification, reuse, and redistribution 
 
 ## 👥 Contributors
 
-- **John Poli Modica** – Creator, Architect, and Lead Developer  
-- Powered by CybernetiX S3C
-
+  - **John Poli Modica** – Creator, Architect, and Lead Developer
+  - Powered by CybernetiX S3C

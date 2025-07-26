@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-# === S3C REPEATER CONTROL PANEL v3.0 (Orion) ===
-SCRIPT_VERSION="v3.0 (Orion)"
+# === S3C REPEATER CONTROL PANEL v4.0 (Aether) ===
+SCRIPT_VERSION="v4.0 (Aether)" # Updated to Aether
 LOGFILE="/var/log/s3c-repeater.log"
 RESET_SCRIPT="/usr/local/bin/s3c-repeater-init"
 SESSION_DIR="$HOME/.s3c/sessions"
@@ -9,15 +9,15 @@ SESSION_FILE="/tmp/s3c-session.conf"
 USER_CTX="${SUDO_USER:-$USER}"
 
 # Voice prompt on launch
-su -l "$USER_CTX" -c 'flite -voice rms -t "Repeater interface activated. Orion control panel online."'
+su -l "$USER_CTX" -c 'flite -voice rms -t "Repeater interface activated. Aether control panel online."'
 
 # ASCII-art banner
 cat << 'EOF'
-███    ███  ██████  ██████      ██████  ██████  ███████ ██████
-████  ████ ██    ██ ██    ██    ██    ██ ██    ██ ██      ██   ██
-██ ████ ██ ██    ██ ██    ██    ██    ██ ██    ██ █████   ██████
-██  ██  ██ ██    ██ ██    ██    ██    ██ ██    ██ ██      ██   ██
-██      ██  ██████   ██████  ██  ██████   ██████  ███████ ██   ██
+███    ███  ██████  ██████      ██████  ██████  ███████ ██████
+████  ████ ██     ██ ██     ██    ██     ██ ██     ██ ██       ██   ██
+██ ████ ██ ██   ██ ██   ██    ██   ██ ██   ██ █████   ██████
+██  ██  ██ ██   ██ ██   ██    ██   ██ ██   ██ ██       ██    ██
+██      ██  ██████   ██████  ██  ██████   ██████  ███████ ██   ██
 EOF
 
 echo "🔥 S3C Tactical Control — Version ${SCRIPT_VERSION} 🚨"
@@ -27,12 +27,14 @@ echo "📅 $(date) — Interface ready" | tee -a "$LOGFILE"
 PS3="🧭 Choose an action: "
 options=(
   "🧬 Configure Hotspot Session"
+  "🗑️ Cleanse Saved Sessions"
   "🚨 Reset Repeater"
   "🔬 Run Diagnostics"
   "🧠 Show Connected Clients"
   "📜 View Logs"
   "🧹 Shutdown Repeater"
   "🔄 Restore Default Network Settings"
+  "🛰️ Launch CyberX ReconX Suite"
   "🛑 Exit"
 )
 
@@ -61,7 +63,7 @@ select opt in "${options[@]}"; do
       echo "🧬 Hotspot Configuration"
       read -rp "📶 Hotspot Interface (e.g., wlan0): " HOTSPOT_IF
       read -rp "🛰️ Uplink Interface (e.g., wlan1): " UPLINK_IF
-      if [[ $HOTSPOT_IF == "$UPLINK_IF" ]]; then
+      if [[ "$HOTSPOT_IF" == "$UPLINK_IF" ]]; then
         echo "❌ Interfaces must differ."
         su -l "$USER_CTX" -c 'flite -voice rms -t "Configuration failed. Interfaces must not match."'
         break
@@ -77,7 +79,7 @@ select opt in "${options[@]}"; do
       } > "$SESSION_FILE"
 
       read -rp "🗃️ Save session under a name? (optional): " SESSION_NAME
-      if [[ -n $SESSION_NAME ]]; then
+      if [[ -n "$SESSION_NAME" ]]; then
         cp "$SESSION_FILE" "$SESSION_DIR/$SESSION_NAME.conf"
         echo "✅ Session saved as $SESSION_NAME"
         su -l "$USER_CTX" -c 'flite -voice rms -t "Session saved for future use."'
@@ -87,9 +89,49 @@ select opt in "${options[@]}"; do
       break
       ;;
 
+    "🗑️ Cleanse Saved Sessions")
+      echo "🗑️ Cleansing saved sessions…" | tee -a "$LOGFILE"
+      mapfile -t SAVED_TO_CLEAN < <(ls "$SESSION_DIR"/*.conf 2>/dev/null)
+      if (( ${#SAVED_TO_CLEAN[@]} > 0 )); then
+        echo "📂 Available sessions to delete:"
+        for i in "${!SAVED_TO_CLEAN[@]}"; do
+          printf "  %d) %s\n" "$((i+1))" "$(basename "${SAVED_TO_CLEAN[i]}" .conf)"
+        done
+        printf "  %d) ALL SESSIONS\n" "$(( ${#SAVED_TO_CLEAN[@]} + 1 ))"
+        read -rp "Select session(s) to delete (e.g., 1 3 or $(( ${#SAVED_TO_CLEAN[@]} + 1 )) for ALL): " delete_choices
+
+        # Split choices into an array
+        IFS=' ' read -r -a choices_array <<< "$delete_choices"
+
+        for choice in "${choices_array[@]}"; do
+          if [[ "$choice" -ge 1 && "$choice" -le "${#SAVED_TO_CLEAN[@]}" ]]; then
+            TARGET_FILE="${SAVED_TO_CLEAN[choice-1]}"
+            rm -f "$TARGET_FILE"
+            echo "✅ Removed session: $(basename "$TARGET_FILE" .conf)" | tee -a "$LOGFILE"
+          elif [[ "$choice" -eq $(( ${#SAVED_TO_CLEAN[@]} + 1 )) ]]; then
+            read -rp "Are you sure you want to delete ALL saved sessions? (y/N): " confirm_all
+            if [[ "$confirm_all" =~ ^[Yy]$ ]]; then
+              rm -f "$SESSION_DIR"/*.conf
+              echo "✅ ALL saved sessions removed." | tee -a "$LOGFILE"
+              break # Exit the loop after deleting all
+            else
+              echo "❌ Deletion of all sessions cancelled." | tee -a "$LOGFILE"
+            fi
+          else
+            echo "⚠️ Invalid selection: $choice" | tee -a "$LOGFILE"
+          fi
+        done
+        su -l "$USER_CTX" -c 'flite -voice rms -t "Session cleansing complete."'
+      else
+        echo "❌ No saved sessions to cleanse." | tee -a "$LOGFILE"
+        su -l "$USER_CTX" -c 'flite -voice rms -t "No sessions to cleanse."'
+      fi
+      break
+      ;;
+
     "🚨 Reset Repeater")
       echo "🔄 Executing full repeater reset…" | tee -a "$LOGFILE"
-      if [[ -x $RESET_SCRIPT ]]; then
+      if [[ -x "$RESET_SCRIPT" ]]; then
         sudo "$RESET_SCRIPT"
       else
         echo "⚠️ Reset script not found." | tee -a "$LOGFILE"
@@ -131,7 +173,7 @@ select opt in "${options[@]}"; do
 
     "🧹 Shutdown Repeater")
       echo "🧹 Shutting down repeater…" | tee -a "$LOGFILE"
-      if [[ -f $SESSION_FILE ]]; then
+      if [[ -f "$SESSION_FILE" ]]; then
         source "$SESSION_FILE"
         sudo systemctl stop dnsmasq hostapd
         sudo ip addr flush dev "$HOTSPOT_IF"
@@ -147,12 +189,45 @@ select opt in "${options[@]}"; do
         echo "❌ No session to shut down." | tee -a "$LOGFILE"
         su -l "$USER_CTX" -c 'flite -voice rms -t "Shutdown failed. No session found."'
       fi
+
+      # === Stop Auto-Cleanup Daemon ===
+      if [[ -f "/tmp/s3c_auto_cleanup.pid" ]]; then
+          CLEANUP_PID=$(cat "/tmp/s3c_auto_cleanup.pid")
+          echo "🛑 Stopping auto-cleanup daemon (PID: $CLEANUP_PID)..." | tee -a "$LOGFILE"
+          sudo kill "$CLEANUP_PID" 2>/dev/null || true
+          sudo rm -f "/tmp/s3c_auto_cleanup.pid"
+          echo "✅ Auto-cleanup daemon stopped." | tee -a "$LOGFILE"
+      fi
+      # ================================
+
+      # === S3C LOG PURIFIER INTEGRATION (Shutdown System Cleanup) ===
+      echo "🧹 Performing shutdown system cleanup..." | tee -a "$LOGFILE"
+
+      # Truncate Large Active System Logs
+      echo "  Truncating common active log files..." | tee -a "$LOGFILE"
+      sudo truncate -s 0 /var/log/syslog
+      sudo truncate -s 0 /var/log/kern.log
+      sudo truncate -s 0 /var/log/auth.log
+      sudo truncate -s 0 /var/log/daemon.log
+      sudo truncate -s 0 /var/log/debug.log
+      sudo truncate -s 0 /var/log/messages
+      sudo truncate -s 0 /var/log/boot.log 2>/dev/null || true
+      sudo truncate -s 0 /var/log/alternatives.log 2>/dev/null || true
+      sudo truncate -s 0 /var/log/s3c-repeater.log # Your S3C log file
+
+      # Vacuum System Journal Logs Aggressively
+      echo "  Aggressively vacuuming systemd journal logs..." | tee -a "$LOGFILE"
+      sudo journalctl --vacuum-size=50M
+      sudo journalctl --vacuum-time=12h
+      echo "✅ Shutdown cleanup complete." | tee -a "$LOGFILE"
+      # ===============================================
+
       break
       ;;
 
     "🔄 Restore Default Network Settings")
       echo "🔄 Restoring default network settings…" | tee -a "$LOGFILE"
-      if [[ -f $SESSION_FILE ]]; then
+      if [[ -f "$SESSION_FILE" ]]; then
         source "$SESSION_FILE"
         sudo pkill -f "wpa_supplicant.*${HOTSPOT_IF}" &> /dev/null || true
         sudo nmcli device set "$HOTSPOT_IF" managed yes &> /dev/null || true
@@ -166,6 +241,52 @@ select opt in "${options[@]}"; do
       else
         echo "❌ No session available to restore from." | tee -a "$LOGFILE"
         su -l "$USER_CTX" -c 'flite -voice rms -t "Session not found. Restore skipped."'
+      fi
+
+      # === Stop Auto-Cleanup Daemon ===
+      if [[ -f "/tmp/s3c_auto_cleanup.pid" ]]; then
+          CLEANUP_PID=$(cat "/tmp/s3c_auto_cleanup.pid")
+          echo "🛑 Stopping auto-cleanup daemon (PID: $CLEANUP_PID)..." | tee -a "$LOGFILE"
+          sudo kill "$CLEANUP_PID" 2>/dev/null || true
+          sudo rm -f "/tmp/s3c_auto_cleanup.pid"
+          echo "✅ Auto-cleanup daemon stopped." | tee -a "$LOGFILE"
+      fi
+      # ================================
+
+      # === S3C LOG PURIFIER INTEGRATION (Default Network Settings Restoration Cleanup) ===
+      echo "🧹 Performing default network settings restoration cleanup..." | tee -a "$LOGFILE"
+
+      # Truncate Large Active System Logs
+      echo "  Truncating common active log files..." | tee -a "$LOGFILE"
+      sudo truncate -s 0 /var/log/syslog
+      sudo truncate -s 0 /var/log/kern.log
+      sudo truncate -s 0 /var/log/auth.log
+      sudo truncate -s 0 /var/log/daemon.log
+      sudo truncate -s 0 /var/log/debug.log
+      sudo truncate -s 0 /var/log/messages
+      sudo truncate -s 0 /var/log/boot.log 2>/dev/null || true
+      sudo truncate -s 0 /var/log/alternatives.log 2>/dev/null || true
+      sudo truncate -s 0 /var/log/s3c-repeater.log # Your S3C log file
+
+      # Vacuum System Journal Logs Aggressively
+      echo "  Aggressively vacuuming systemd journal logs..." | tee -a "$LOGFILE"
+      sudo journalctl --vacuum-size=50M
+      sudo journalctl --vacuum-time=12h
+      echo "✅ Default network settings restoration cleanup complete." | tee -a "$LOGFILE"
+      # =======================================================
+
+      break
+      ;;
+
+    "🛰️ Launch CyberX ReconX Suite")
+      if command -v cyberx &>/dev/null; then
+        echo "🚀 Launching CyberX ReconX..."
+        su -l "$USER_CTX" -c 'flite -voice rms -t "Cyber X Recon suite engaging."'
+        sudo cyberx
+      else
+        echo "🔧 CyberX not found. Installing..."
+        git clone https://github.com/CybernetiX-S3C/CyberX-ReconX.git /opt/CyberReconX
+        bash /opt/CyberReconX/install.sh
       fi
       break
       ;;
@@ -182,4 +303,3 @@ select opt in "${options[@]}"; do
       ;;
   esac
 done
-
