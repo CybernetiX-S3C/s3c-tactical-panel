@@ -1,6 +1,6 @@
 # S3C Tactical Panel
 <p align="center">
-  <img src="logo.png" width="400" alt="CybernetiX S3C Tactical Logo">
+  <img src="https://github.com/CybernetiX-S3C/s3c-tactical-panel/blob/main/logo.png?raw=true" width="400" alt="CybernetiX S3C Tactical Logo">
 </p>
 
 [![Release: v4.0-Aether](https://img.shields.io/badge/release-v4.0--Aether-brightgreen?style=flat-square)](https://github.com/CybernetiX-S3C/s3c-tactical-panel/releases/tag/v4.0-Aether)
@@ -12,12 +12,12 @@
 ```
 
 ╔═════════════════════════════════════════╗
-║         S3C TACTICAL PANEL v4.0         ║
+║        S3C TACTICAL PANEL v4.0          ║
 ╚═════════════════════════════════════════╝
 
-**Author:** John Poli Modica (CybernetiX S3C)  
-**GitHub:** [CybernetiX-S3C](https://github.com)  
-**Version:** 4.0 (Codename: Aether)  
+**Author:** John Poli Modica (CybernetiX S3C)
+**GitHub:** [CybernetiX-S3C](https://github.com/CybernetiX-S3C)
+**Version:** 4.0 (Codename: Aether)
 **License:** MIT
 
 ````
@@ -31,6 +31,8 @@ The **S3C Tactical Panel** is a robust, shell-based framework engineered for adv
 Every module is designed with reliability, auditability, and tactical efficiency in mind, making it ideal for both live field deployment and controlled lab environments. From zero-config repeater spins to graceful shutdowns and teardown protocols, S3C Tactical Panel offers precise oversight of repeater behavior and network posture.
 
 Built natively in Bash, and leveraging common system tools like `dnsmasq`, `hostapd`, and `iptables`, it requires no dependencies beyond the base operating system and `flite` for voice interactivity.
+
+This panel is designed with extensibility in mind, featuring **seamless integration with `CyberX ReconX`**. While `CyberX ReconX` is a powerful standalone diagnostic and recovery suite, its capabilities are directly accessible and integrated into the S3C Tactical Panel, providing a comprehensive solution for both repeater management and in-depth wireless troubleshooting.
 
 ---
 
@@ -64,7 +66,7 @@ Built natively in Bash, and leveraging common system tools like `dnsmasq`, `host
   Handles service restarts and robust firewall rules without external libraries, including comprehensive flushing and default policy resets.
 
 - 🛰 **CyberX ReconX Integration**
-  Launch wireless diagnostics and Realtek recovery suite directly from the control panel. Includes interface spoofing, MAC cloning, recon sweeps, and driver rebuild functionality via CyberX ReconX.
+  Launch `CyberX ReconX` directly from the control panel. This integration provides seamless access to its advanced wireless diagnostics, driver management, MAC manipulation, and reconnaissance capabilities. **`CyberX ReconX` is a powerful standalone tool, available as a separate repository [here](https://github.com/CybernetiX-S3C/CyberX-ReconX), but is deeply integrated into the S3C Tactical Panel for enhanced functionality.**
 
 - ⚙️ **MIT Licensed & Expandable**
   Open-source, extensible, and designed to be forked, embedded, or integrated.
@@ -80,7 +82,7 @@ git clone [https://github.com/CybernetiX-S3C/s3c-tactical-panel.git](https://git
 cd s3c-tactical-panel
 chmod +x s3c-repeater-*.sh
 sudo ./s3c-repeater-deploy.sh
-````
+```
 
 Once deployed, use:
 
@@ -90,8 +92,10 @@ s3cctl
 
 You will be greeted with a voice prompt and the full ASCII-art tactical interface.
 
+**CyberX ReconX Integration:**
 Optionally install CyberX ReconX automatically from within the control panel if not already present.
-It will be cloned to `/opt/CyberReconX` and globally registered as `cyberx`.
+It will be cloned to `/opt/CyberReconX` and globally registered as `cyberx`. You can also manually clone and install it from its dedicated repository:
+`git clone https://github.com/CybernetiX-S3C/CyberX-ReconX.git`
 
 📁 Directory Structure
 
@@ -102,7 +106,8 @@ s3c-tactical-panel/
 ├── s3c-repeater-deploy.sh      # Installer and setup utility
 ├── .gitignore                  # File exclusions
 ├── LICENSE                     # MIT license
-└── README.md                   # Project documentation
+├── README.md                   # Project documentation
+└── logo.png                    # CybernetiX S3C brand logo for the README
 ```
 
 🛠 Dependencies
@@ -126,6 +131,7 @@ All dependencies are checked and optionally installed by the deployer script if 
 4.  Run diagnostics and monitor clients
 5.  View logs as needed
 6.  Shutdown or restore interfaces with voice confirmation
+7.  **Leverage CyberX ReconX for advanced wireless diagnostics and recovery if needed, directly from the panel.**
 
 ⚠️ Disclaimer
 S3C Tactical Panel manipulates network interfaces and system services. Use in live environments with caution. Administrator privileges are required for most operations. Always test in isolated or virtualized conditions before rolling out to production networks.
