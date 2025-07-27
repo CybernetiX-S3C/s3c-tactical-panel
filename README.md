@@ -41,8 +41,8 @@ This panel is designed with extensibility in mind, featuring **seamless integrat
 - 🎙 **Voice-Guided Interaction**
   Use of `flite` delivers real-time verbal feedback for operational clarity.
 
-- 🧬 **Modular Hotspot Configuration**
-  Save, load, and restore repeater session profiles with `.conf` files stored in a persistent directory.
+- 🧬 **Modular and Validated Hotspot Configuration**
+  Save, load, and restore repeater session profiles with `.conf` files stored in a persistent directory. The new configuration system validates settings before applying them to prevent errors.
 
 - 🚨 **Instant Repeater Reset with Comprehensive Pre-Flight Network Purge**
   Execute full environment resets via `s3c-repeater-init.sh`, now including a complete NetworkManager restart and a comprehensive `iptables` and `ip6tables` flush (clearing all rules, chains, and tables including NAT, RAW, and MANGLE) *before* applying new configurations. This ensures a clean slate for NAT, DHCP, WPA2 provisioning, and interface setup, preventing lingering conflicts and guaranteeing optimal repeater functionality.
@@ -104,6 +104,7 @@ s3c-tactical-panel/
 ├── s3c-repeater-control.sh     # Interactive panel interface
 ├── s3c-repeater-init.sh        # Repeater initializer and configuration
 ├── s3c-repeater-deploy.sh      # Installer and setup utility
+├── s3c-repeater-config.sh      # Configuration management script
 ├── .gitignore                  # File exclusions
 ├── LICENSE                     # MIT license
 ├── README.md                   # Project documentation

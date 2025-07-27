@@ -6,7 +6,11 @@ LOGFILE="/var/log/s3c-repeater.log"
 RESET_SCRIPT="/usr/local/bin/s3c-repeater-init"
 SESSION_DIR="$HOME/.s3c/sessions"
 SESSION_FILE="/tmp/s3c-session.conf"
+CONFIG_SCRIPT="/usr/local/bin/s3c-repeater-config"
 USER_CTX="${SUDO_USER:-$USER}"
+
+# Source the config script
+source "$CONFIG_SCRIPT"
 
 # Voice prompt on launch
 su -l "$USER_CTX" -c 'flite -voice rms -t "Repeater interface activated. Aether control panel online."'
@@ -42,49 +46,17 @@ select opt in "${options[@]}"; do
   case "$opt" in
 
     "🧬 Configure Hotspot Session")
-      mkdir -p "$SESSION_DIR"
-      mapfile -t SAVED < <(ls "$SESSION_DIR"/*.conf 2>/dev/null)
-      if (( ${#SAVED[@]} > 0 )); then
-        echo "📂 Available saved sessions:"
-        for i in "${!SAVED[@]}"; do
-          printf "  %d) %s\n" "$((i+1))" "$(basename "${SAVED[i]}" .conf)"
-        done
-        printf "  %d) Create new session\n" "$(( ${#SAVED[@]} + 1 ))"
-        read -rp "Select session [1-$(( ${#SAVED[@]} + 1 ))]: " choice
-        if (( choice >= 1 && choice <= ${#SAVED[@]} )); then
-          cp "${SAVED[choice-1]}" "$SESSION_FILE"
-          source "$SESSION_FILE"
-          echo "✅ Loaded session: $SSID on $HOTSPOT_IF ↔ $UPLINK_IF"
-          su -l "$USER_CTX" -c 'flite -voice rms -t "Session restored. Ready for initialization."'
-          break
-        fi
-      fi
-
-      echo "🧬 Hotspot Configuration"
-      read -rp "📶 Hotspot Interface (e.g., wlan0): " HOTSPOT_IF
-      read -rp "🛰️ Uplink Interface (e.g., wlan1): " UPLINK_IF
-      if [[ "$HOTSPOT_IF" == "$UPLINK_IF" ]]; then
-        echo "❌ Interfaces must differ."
-        su -l "$USER_CTX" -c 'flite -voice rms -t "Configuration failed. Interfaces must not match."'
-        break
-      fi
-      read -rp "📡 Hotspot SSID: " SSID
-      read -rp "🔐 WPA2 Passphrase (8+ chars, blank for open): " PASSPHRASE
-
-      {
-        echo "HOTSPOT_IF=$HOTSPOT_IF"
-        echo "UPLINK_IF=$UPLINK_IF"
-        echo "SSID=$SSID"
-        echo "PASSPHRASE=$PASSPHRASE"
-      } > "$SESSION_FILE"
-
-      read -rp "🗃️ Save session under a name? (optional): " SESSION_NAME
-      if [[ -n "$SESSION_NAME" ]]; then
-        cp "$SESSION_FILE" "$SESSION_DIR/$SESSION_NAME.conf"
-        echo "✅ Session saved as $SESSION_NAME"
-        su -l "$USER_CTX" -c 'flite -voice rms -t "Session saved for future use."'
+      list_sessions
+      read -rp "Select session or create new [1-n, c]: " choice
+      if [[ "$choice" == "c" ]]; then
+        create_new_session
       else
-        su -l "$USER_CTX" -c 'flite -voice rms -t "Session configured. Apply on init."'
+        mapfile -t SAVED < <(ls "$SESSION_DIR"/*.conf 2>/dev/null)
+        if (( choice >= 1 && choice <= ${#SAVED[@]} )); then
+          load_config "${SAVED[choice-1]}"
+        else
+          echo "Invalid selection."
+        fi
       fi
       break
       ;;

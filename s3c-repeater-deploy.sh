@@ -4,6 +4,7 @@
 DEPLOY_VERSION="v4.0 (Aether)"
 CONTROL_SRC="./s3c-repeater-control.sh" # Assumes control script is in the same directory
 INIT_SRC="./s3c-repeater-init.sh"      # Assumes init script is in the same directory
+CONFIG_SRC="./s3c-repeater-config.sh"    # Assumes config script is in the same directory
 BIN_DIR="/usr/local/bin"
 INSTALL_LOG="/var/log/s3c-deploy.log"
 LOGFILE="/var/log/s3c-repeater.log" # This log will be managed by init/control scripts
@@ -83,15 +84,21 @@ if [ ! -f "$INIT_SRC" ]; then
     su -l "$USER_CTX" -c 'flite -voice rms -t "Initialization script missing. Deployment aborted."'
     exit 1
 fi
+if [ ! -f "$CONFIG_SRC" ]; then
+    echo "❌ Config script not found: $CONFIG_SRC. Aborting." | tee -a "$INSTALL_LOG"
+    su -l "$USER_CTX" -c 'flite -voice rms -t "Configuration script missing. Deployment aborted."'
+    exit 1
+fi
 echo "✅ Source scripts found." | tee -a "$INSTALL_LOG"
 
 # --- 7. Copy scripts & enforce ownership and permissions ---
 echo "🛠️ Installing control & init modules, setting ownership and permissions…" | tee -a "$INSTALL_LOG"
 sudo cp "$CONTROL_SRC" "$BIN_DIR/s3c-repeater-control" | tee -a "$INSTALL_LOG"
 sudo cp "$INIT_SRC" "$BIN_DIR/s3c-repeater-init" | tee -a "$INSTALL_LOG"
+sudo cp "$CONFIG_SRC" "$BIN_DIR/s3c-repeater-config" | tee -a "$INSTALL_LOG"
 
-sudo chown root:root "$BIN_DIR/s3c-repeater-control" "$BIN_DIR/s3c-repeater-init" | tee -a "$INSTALL_LOG"
-sudo chmod 755 "$BIN_DIR/s3c-repeater-control" "$BIN_DIR/s3c-repeater-init" | tee -a "$INSTALL_LOG"
+sudo chown root:root "$BIN_DIR/s3c-repeater-control" "$BIN_DIR/s3c-repeater-init" "$BIN_DIR/s3c-repeater-config" | tee -a "$INSTALL_LOG"
+sudo chmod 755 "$BIN_DIR/s3c-repeater-control" "$BIN_DIR/s3c-repeater-init" "$BIN_DIR/s3c-repeater-config" | tee -a "$INSTALL_LOG"
 
 su -l "$USER_CTX" -c 'flite -voice rms -t "Modules deployed. Ownership and permissions set."'
 echo "✅ Core repeater scripts deployed and secured." | tee -a "$INSTALL_LOG"

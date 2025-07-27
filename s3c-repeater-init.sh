@@ -40,12 +40,13 @@ s3c_auto_cleanup() {
 
 
 # 1) Load session
-if [ ! -f "$SESSION_FILE" ]; then
-  echo "❌ No session config found. Aborting." | tee -a "$LOGFILE"
-  su -l "$USER_CTX" -c 'flite -voice rms -t "No repeater session found. Aborting initialization."'
+CONFIG_SCRIPT="/usr/local/bin/s3c-repeater-config"
+source "$CONFIG_SCRIPT"
+if ! load_config "$SESSION_FILE"; then
+  echo "❌ Failed to load session config. Aborting." | tee -a "$LOGFILE"
+  su -l "$USER_CTX" -c 'flite -voice rms -t "Failed to load repeater session. Aborting initialization."'
   exit 1
 fi
-source "$SESSION_FILE"
 
 # === Pre-flight Interface Check ===
 echo "🔎 Performing interface pre-flight check..." | tee -a "$LOGFILE"
